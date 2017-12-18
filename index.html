@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/jquery.csv.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> 
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css"> 
+    <script type="text/javascript">
+
+      const addRow = (cellsObject, header=false) => {
+          if (!document.getElementsByTagName) return;
+          tabBody = document.getElementsByTagName(header ? "thead" : "tbody").item(0);
+          row = document.createElement("tr");
+          const headers = Object.keys(cellsObject);
+          cells = header ? headers : Object.values(cellsObject);
+
+          cells.forEach((cellContent, idx) => {
+            cell = document.createElement(header ? "th" : "td");
+            let contentNode;
+            if (cellContent.includes('http')) {
+              contentNode = document.createElement('a');
+              contentNode.setAttribute('href', cellContent);
+              linkTextNode = document.createTextNode(headers[idx]);
+              contentNode.appendChild(linkTextNode);
+            } else {
+              contentNode = document.createTextNode(cellContent);
+            }
+            cell.appendChild(contentNode);
+            row.appendChild(cell);
+          });
+
+          tabBody.appendChild(row);
+      }
+
+      const fileLocation = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSGorbEVhtv9PRvM5jsHdmMXUTxBxvkpWbB8dp2gMBWMP-aW1WvIJK5TfpUYtu8wPMCtCq6TF-1dk3b/pub?output=csv";
+
+      const processData = (data) => {
+        const rows = $.csv.toObjects(data);
+        addRow(rows[0], header=true);
+        rows.forEach((project) => addRow(project, false));
+        $('#projects_table').DataTable();
+      };
+
+      $(document).ready(() => {
+          $.ajax({
+              type: "GET",
+              url: fileLocation,
+              dataType: "text",
+              success: (data) => { processData(data); }
+           });
+      });
+
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse bg-inverse">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="http://www.datakind.org/chapters/datakind-dc">
+            <img src="/assets/DKDC.png" height="20" class="d-inline-block align-top" alt="">
+          </a>
+          <a class="navbar-brand" href="http://www.datakind.org/chapters/datakind-dc">DataKind DC</a>
+        </div>
+      </div>
+    </nav> 
+
+  <div class="container">
+    <div class="row">
+      <div class="jumbotron col">
+        <h1>DataKind DC Projects</h1>
+        <p>DataKind DC's past and active projects. Get in touch with us at dc@datakind.org if you are interested in working with DataKind as a partner or volunteer!</p>
+        <p><a class="btn btn-primary btn-lg" href="http://www.datakind.org/chapters/datakind-dc" role="button">Learn more</a></p>
+      </div>      
+    </div>    
+    <div class="row">
+      <div class="col">
+        <table id='projects_table' class="table table-striped table-bordered">
+            <thead></thead>
+            <tbody></tbody>
+        </table>        
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
